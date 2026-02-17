@@ -1,0 +1,23 @@
+# Java
+*.class
+target/
+*.log
+*.jar
+!.mvn/wrapper/maven-wrapper.jar
+
+# IDE
+.idea/
+*.iml
+.settings/
+.project
+.classpath
+.settings/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+config.properties
+*.log
