@@ -1,8 +1,8 @@
-package com.messaging.core;
+package com.messaging.common.enums;
 
 public enum NodeRole {
     LEADER,
     FOLLOWER,
     CANDIDATE,
-    OFFLINE
+    OBSERVER
 }
