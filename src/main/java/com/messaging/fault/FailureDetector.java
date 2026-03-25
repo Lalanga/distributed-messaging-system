@@ -42,7 +42,7 @@ public class FailureDetector {
 
             // Checking if the node is silent for too long
             if (timeGap > MAX_WAIT_TIME) {
-                System.err.println("!!! WARNING: Node " + nodeId + " is not responding. Timeout: " + timeGap + "ms");
+                System.err.println("[ALERT] Node Failure Detected! ID: " + nodeId + " | Inactive for: " + (timeGap/1000) + " seconds");
                 triggerRecovery(nodeId);
             }
         }
