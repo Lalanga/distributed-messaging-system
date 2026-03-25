@@ -7,8 +7,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /*
- * Student Name: Vimukthi Munasinghe
- * Registration Number: IT24610782
+ * Name: Vimukthi Munasinghe
+ * IT Number: IT24610782
  * Task: Fault Tolerance - Heartbeat Manager
  * * This class is responsible for sending periodic "ALIVE" signals
  * to other server nodes in the distributed system.
