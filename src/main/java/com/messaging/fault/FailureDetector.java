@@ -26,7 +26,7 @@ public class FailureDetector {
         nodeHealthMap.put(id, receivedTime);
 
         // Debugging message to see if it's working in the console
-        System.out.println("Status Update: Received heartbeat from Node " + id + " at " + receivedTime);
+        System.out.println("[INFO] Heartbeat received from Node: " + id + " at " + new java.util.Date());
     }
 
     /*
