@@ -1,56 +1,112 @@
 package com.messaging.fault;
 
-import java.util.ArrayList;
+import com.messaging.common.NodeInfo;
+import com.messaging.common.enums.MessageType;
+import com.messaging.network.ConnectionManager;
+import com.messaging.network.protocol.MessageProtocol;
+import com.messaging.util.logger.LoggerUtil;
+import org.apache.logging.log4j.Logger;
+import java.io.IOException;
+import java.io.Serializable;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
-/*
- * Name: Vimukthi Munasinghe
- * IT Number: IT24610782
- * Task: Fault Tolerance - Heartbeat Manager
- * * This class is responsible for sending periodic "ALIVE" signals
- * to other server nodes in the distributed system.
- */
+
 public class HeartbeatManager {
+    private static final Logger logger = LoggerUtil.getLogger(HeartbeatManager.class);
+    private final NodeInfo localNode;
+    private final List<NodeInfo> peers;
+    private final int intervalMs;
+    private final ScheduledExecutorService scheduler =
+            Executors.newSingleThreadScheduledExecutor(
+                    r -> {
+                        Thread t = new Thread(r, "heartbeat-sender");
+                        t.setDaemon(true);
+                        return t;
+                    });
+    private ConnectionManager connManager;
+    private volatile boolean running = false;
 
-    private ScheduledExecutorService heartbeatTask;
-    private List<String> allNodes = new ArrayList<>();
-
-    // Constructor to initialize the server list
-    public HeartbeatManager(List<String> nodes) {
-        this.allNodes = nodes;
-        // Creating a single thread to handle the background heartbeat task
-        this.heartbeatTask = Executors.newSingleThreadScheduledExecutor();
+    public HeartbeatManager(NodeInfo localNode, List<NodeInfo> peers, int intervalMs) {
+        this.localNode = localNode;
+        this.peers = peers;
+        this.intervalMs = intervalMs;
     }
 
-    // Method to start sending heartbeats every 5 seconds
-    public void startService() {
-        System.out.println(">>> Heartbeat Service Started for Node: IT24610782");
-
-        // Lab 2 & 7: Scheduling the task to run repeatedly
-        heartbeatTask.scheduleAtFixedRate(new Runnable() {
-            @Override
-            public void run() {
-                sendSignals();
-            }
-        }, 0, 5, TimeUnit.SECONDS);
+    public void setConnectionManager(ConnectionManager cm) {
+        this.connManager = cm;
     }
 
-    // Iterating through the list of peers to send the signal
-    private void sendSignals() {
-        for (String targetNode : allNodes) {
-            // For now, printing to console.
-            // TODO: Ex1 - Implement Socket connection to send actual packet (Lab 2)
-            System.out.println("Sending ALIVE signal to peer node at: " + targetNode);
+    public void start() {
+        running = true;
+        scheduler.scheduleAtFixedRate(this::sendAll, intervalMs, intervalMs,
+                TimeUnit.MILLISECONDS);
+        logger.info("[{}] HeartbeatManager started (interval={}ms)",
+                localNode.getNodeId(), intervalMs);
+    }
+
+    public void shutdown() {
+        running = false;
+        scheduler.shutdown();
+    }
+
+    private void sendAll() {
+        if (!running || connManager == null) return;
+        for (NodeInfo peer : peers) {
+            sendHeartbeat(peer);
         }
     }
 
-    // Shutdown the service when the server stops
-    public void stopService() {
-        if (heartbeatTask != null) {
-            heartbeatTask.shutdown();
+    private void sendHeartbeat(NodeInfo peer) {
+        try {
+            HeartbeatPayload payload = new HeartbeatPayload(
+                    localNode.getNodeId(),
+                    System.currentTimeMillis()
+            );
+            MessageProtocol msg = new MessageProtocol(
+                    MessageType.HEARTBEAT,
+                    localNode.getNodeId(),
+                    peer.getNodeId(),
+                    payload
+            );
+            connManager.sendMessage(peer.getNodeId(), msg);
+        } catch (IOException e) {
+            logger.debug(
+                    "[{}] Heartbeat to {} failed: {}",
+                    localNode.getNodeId(),
+                    peer.getNodeId(),
+                    e.getMessage()
+            );
+        }
+    }
+
+    public void sendAck(String targetNodeId, long originalTimestamp) {
+        if (connManager == null) return;
+        try {
+            HeartbeatPayload ack = new HeartbeatPayload(
+                    localNode.getNodeId(),
+                    originalTimestamp
+            );
+            MessageProtocol msg = new MessageProtocol(
+                    MessageType.HEARTBEAT_ACK,
+                    localNode.getNodeId(),
+                    targetNodeId,
+                    ack
+            );
+            connManager.sendMessageAsync(targetNodeId, msg);
+        } catch (Exception e) {
+            logger.debug("Heartbeat ACK send error: {}", e.getMessage());
+        }
+    }
+
+    public static final class HeartbeatPayload implements Serializable {
+        private static final long serialVersionUID = 1L;
+        public final String senderId;
+        public final long sentAtMs;
+
+        public HeartbeatPayload(String senderId, long sentAtMs) {
+            this.senderId = senderId;
+            this.sentAtMs = sentAtMs;
         }
     }
 }
