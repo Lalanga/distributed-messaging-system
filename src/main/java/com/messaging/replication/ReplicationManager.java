@@ -60,8 +60,7 @@ public class ReplicationManager {
         if (targets.isEmpty()) {
             logger.warn("[{}] No live replicas available for {}",
                     localNode.getNodeId(), message.getMessageId());
-            return "EVENTUAL".equalsIgnoreCase(consistencyModel); // allow under
-            eventual
+            return "EVENTUAL".equalsIgnoreCase(consistencyModel); // allow under eventual
         }
         int required = requiredAcks(targets.size());
         AtomicInteger acks = new AtomicInteger(0);
