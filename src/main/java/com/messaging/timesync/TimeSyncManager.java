@@ -17,7 +17,7 @@ public class TimeSyncManager {
     private final List<NodeInfo> peers;
     private final MessageReorderer reorderer = new MessageReorderer();
     private final TimestampCorrector corrector = new TimestampCorrector();
-    private ConnectionManager connManager;git ss
+    private ConnectionManager connManager;
     private volatile long offset = 0L;
     private final Map<String, Long> pendingRequests = new ConcurrentHashMap<>();
     private final ScheduledExecutorService scheduler =
