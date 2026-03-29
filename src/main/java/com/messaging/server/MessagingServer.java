@@ -10,7 +10,6 @@ import com.messaging.network.handler.ClientRequestHandler;
 import com.messaging.network.handler.PeerRequestHandler;
 import com.messaging.network.protocol.MessageProtocol;
 import com.messaging.replication.ReplicationManager;
-import com.messaging.service.MessageService;
 import com.messaging.storage.MessageStore;
 import com.messaging.timesync.TimeSyncManager;
 import com.messaging.util.logger.LoggerUtil;
