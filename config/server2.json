@@ -1,0 +1,15 @@
+{
+  "serverId": "server2",
+  "port": 5002,
+  "dataDir": "data",
+  "heartbeatInterval": 500,
+  "electionTimeout": 1500,
+  "replicationFactor": 3,
+  "consistencyModel": "QUORUM",
+  "enableTimeSync": true,
+  "timeSyncProtocol": "NTP",
+  "peers": [
+    { "nodeId": "server1", "host": "localhost", "port": 5001, "role": "FOLLOWER", "alive": true },
+    { "nodeId": "server3", "host": "localhost", "port": 5003, "role": "FOLLOWER", "alive": true }
+  ]
+}
