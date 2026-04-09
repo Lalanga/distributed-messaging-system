@@ -6,7 +6,6 @@ import com.messaging.common.enums.MessageType;
 import com.messaging.network.ConnectionManager;
 import com.messaging.network.Response;
 import com.messaging.network.protocol.MessageProtocol;
-import com.messaging.service.MessageService;
 import com.messaging.util.logger.LoggerUtil;
 import org.apache.logging.log4j.Logger;
 
